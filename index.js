@@ -67,7 +67,7 @@ async function run() {
             const query = {}
 
             const options = {
-                sort: { price: sort === 'asc' ? 1 : -1 }
+                sort: { "price": sort === 'asc' ? 1 : -1 }
             }
 
             const cursor = servicesCollection.find(query, options)
