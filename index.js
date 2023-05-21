@@ -25,13 +25,13 @@ const verifyJWT = (req, res, next) => {
     // console.log(req.headers.authorization)
 
     const authorization = req.headers.authorization
-    if(!authorization){
-        return res.status(401).send({error: true, message: 'unauthorized access'})
+    if (!authorization) {
+        return res.status(401).send({ error: true, message: 'unauthorized access' })
     }
     const token = authorization.split(' ')[1]
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
-        if(error){
-            return res.status(403).send({error: true, message: 'unauthorized access'})
+        if (error) {
+            return res.status(403).send({ error: true, message: 'unauthorized access' })
         }
         req.decoded = decoded
         next()
@@ -54,14 +54,21 @@ async function run() {
                 expiresIn: '10h'
             })
             console.log(token)
-            res.send({token})
+            res.send({ token })
         })
 
 
         // Services
 
         app.get('/services', async (req, res) => {
-            const cursor = servicesCollection.find()
+
+            const query = {}
+
+            const options = {
+                sort: { price: -1}
+            }
+
+            const cursor = servicesCollection.find(query, options)
             const result = await cursor.toArray()
             res.send(result)
         })
@@ -70,7 +77,7 @@ async function run() {
             const id = req.params.id
             const query = { _id: new ObjectId(id) }
             const options = {
-                projection: {title: 1, service_id: 1, price: 1, img: 1 },
+                projection: { title: 1, service_id: 1, price: 1, img: 1 },
             };
             const result = await servicesCollection.findOne(query, options)
             res.send(result)
@@ -86,13 +93,13 @@ async function run() {
             const decoded = req.decoded
             console.log(decoded)
 
-            if(decoded.email !== req.query.email){
-                return res.status(403).send({error: true, message: 'forbidden access'})
+            if (decoded.email !== req.query.email) {
+                return res.status(403).send({ error: true, message: 'forbidden access' })
             }
 
             let query = {}
-            if(req.query?.email){
-                query = {email: req.query.email}
+            if (req.query?.email) {
+                query = { email: req.query.email }
             }
 
             const result = await bookingCollection.find(query).toArray()
@@ -109,7 +116,7 @@ async function run() {
         app.patch('/bookings/:id', async (req, res) => {
             const id = req.params.id
             const booking = req.body
-            const filter = {_id: new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const updateBooking = {
                 $set: {
                     status: booking.status
@@ -121,7 +128,7 @@ async function run() {
 
         app.delete('/bookings/:id', async (req, res) => {
             const id = req.params.id
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await bookingCollection.deleteOne(query)
             res.send(result)
         })
