@@ -64,8 +64,11 @@ async function run() {
 
             const sort = req.query.sort
 
+            const searchText = req.query.search
+
             // const query = {}
-            const query = { price: { $lte: 150 } };
+            // const query = { price: { $lte: 150 } };
+            const query = {title: {$regex: searchText, $options: 'i'}}
 
             const options = {
                 sort: { "price": sort === 'asc' ? 1 : -1 }
